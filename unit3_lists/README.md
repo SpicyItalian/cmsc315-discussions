@@ -19,12 +19,26 @@ This assignment examines insertion, deletion, and searching in Python lists.
 4. Demonstrate edge cases.
 5. Create a real-world scenario.
 
-## Discussion Board Reflection
 
-After completing the programming assignment, add this reflection to your initial discussion post in LEO.
+### Discussion Board Reflection
 
-Your reflection should be approximately 150–200 words and address the following questions:
+I learned how inserting, deleting, and searching affected a Python list.
+My functions used `insert()` to add an item at a position, `pop()` to remove
+and return an item, and a loop to find the first matching value. Testing
+beginning, middle, and end positions helped me see how indexes changed after
+an edit.
 
-1. What concepts or skills did you learn while completing this assignment?
-2. What challenges did you encounter, and how did you overcome them?
-3. How do list operations impact performance in real-world applications?
+One detail that needed care was validating deletion indexes. I returned
+`None` for invalid indexes so the list stayed unchanged. I also checked
+empty lists, single-item lists, and duplicate values. Another important
+check was handling a search result of `-1`, since passing it directly to
+`pop()` would remove the final item instead of leaving the list alone.
+
+My playlist example inserted a song, found another song by title, and removed
+it by index. It showed how list operations supported edits to an ordered
+collection.
+
+In a larger application, beginning and middle edits could become slower
+because later items needed to shift. Searching could also take longer as
+the list grew because it checked values one at a time. This helped explain
+why choosing a data structure depended on the operations used most often.
