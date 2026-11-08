@@ -17,14 +17,18 @@ class Node:
         # TODO (Student):
         # Store the node's value and initialize references
         # to the left and right child nodes.
-        pass
+        # New nodes start as leaves until insertion connects their children.
+        self.value = value
+        self.left = None
+        self.right = None
 
 
 class BST:
     def __init__(self):
         # TODO (Student):
         # Initialize an empty Binary Search Tree.
-        pass
+        # A missing root represents a tree with no values.
+        self.root = None
 
     def insert(self, value):
         """
@@ -37,7 +41,9 @@ class BST:
           whether a value is smaller or larger than the
           current node.
         """
-        pass
+        # Smaller values belong on the left and larger values on the right.
+        # Save the returned reference so insertion also works for an empty tree.
+        self.root = self._insert_recursive(self.root, value)
 
     def _insert_recursive(self, node, value):
         """
@@ -50,7 +56,18 @@ class BST:
         - Insert larger values into the right subtree.
         - Return the updated node reference.
         """
-        pass
+        # Base case: this empty position becomes the new value's node.
+        if node is None:
+            return Node(value)
+
+        # Follow only the subtree that can contain the value and reconnect it.
+        if value < node.value:
+            node.left = self._insert_recursive(node.left, value)
+        elif value > node.value:
+            node.right = self._insert_recursive(node.right, value)
+
+        # Equal values are ignored so each value appears only once in this BST.
+        return node
 
     def search(self, value):
         """
@@ -63,14 +80,26 @@ class BST:
         - Add comments explaining why BST search is often
           more efficient than linear search.
         """
-        pass
+        # Ordering lets each comparison discard one subtree rather than scan
+        # every value. Search takes O(h) time for tree height h: O(log n) when
+        # balanced, but O(n) if insertion order creates a long chain.
+        return self._search_recursive(self.root, value)
 
     def _search_recursive(self, node, value):
         """
         TODO (Student):
         Implement recursive BST search.
         """
-        pass
+        # Base case: reaching a missing child means the value was not found.
+        if node is None:
+            return False
+        if value == node.value:
+            return True
+
+        # A smaller target cannot be in the right subtree, and vice versa.
+        if value < node.value:
+            return self._search_recursive(node.left, value)
+        return self._search_recursive(node.right, value)
 
     def inorder(self):
         """
@@ -78,7 +107,10 @@ class BST:
         Return a list containing the values from an
         in-order traversal.
         """
-        pass
+        # Collect into a fresh list without changing the tree itself.
+        values = []
+        self._inorder_recursive(self.root, values)
+        return values
 
     def _inorder_recursive(self, node, values):
         """
@@ -92,7 +124,15 @@ class BST:
         - Add comments explaining why this traversal
           produces sorted output in a BST.
         """
-        pass
+        # Empty subtrees contribute no values and stop this recursive branch.
+        if node is None:
+            return
+
+        # Left values are smaller and right values are larger, so visiting
+        # left, current, then right produces values in ascending order.
+        self._inorder_recursive(node.left, values)
+        values.append(node.value)
+        self._inorder_recursive(node.right, values)
 
 
 def main():
@@ -113,6 +153,16 @@ def main():
     print("\n=== TREE CONSTRUCTION ===")
     print("TODO: Create a BST and insert multiple values.")
 
+    # This insertion order creates both left and right subtrees.
+    tree = BST()
+    inserted_values = [50, 30, 70, 20, 40, 60, 80]
+    for value in inserted_values:
+        tree.insert(value)
+    print(f"Values inserted: {inserted_values}")
+    print(f"Root value: {tree.root.value}")
+    # In this balanced example, each comparison rules out a whole subtree.
+    # This basic BST does not rebalance itself when the insertion order changes.
+
     # ===============================
     # TODO (Student): IN-ORDER TRAVERSAL
     # ===============================
@@ -126,6 +176,10 @@ def main():
     print("\n=== IN-ORDER TRAVERSAL ===")
     print("TODO: Display and explain traversal results.")
 
+    # All left descendants precede their parent, followed by right descendants.
+    print(f"In-order traversal: {tree.inorder()}")
+    print("Left, current, right produces the values in ascending order.")
+
     # ===============================
     # TODO (Student): SEARCH TESTS
     # ===============================
@@ -137,6 +191,10 @@ def main():
 
     print("\n=== SEARCH TESTS ===")
     print("TODO: Demonstrate BST searching.")
+
+    # Two stored values return True; two missing values return False.
+    for value in (20, 60, 25, 90):
+        print(f"Search for {value}: {tree.search(value)}")
 
     # ===============================
     # TODO (Student): EDGE CASES
@@ -154,6 +212,41 @@ def main():
 
     print("\n=== EDGE CASES ===")
     print("TODO: Demonstrate and explain an edge case.")
+
+    # Both traversal and search stop safely when the root is None.
+    empty_tree = BST()
+    print(f"Empty-tree traversal: {empty_tree.inorder()}")
+    print(f"Search empty tree for 50: {empty_tree.search(50)}")
+
+    # A one-node tree can find its root but has no other values.
+    single_tree = BST()
+    single_tree.insert(42)
+    print(f"Single-node traversal: {single_tree.inorder()}")
+    print(f"Search single-node tree for 42: {single_tree.search(42)}")
+    print(f"Search single-node tree for 99: {single_tree.search(99)}")
+
+    # The duplicate policy keeps existing nodes and ignores equal insertions.
+    tree.insert(30)
+    print(f"After inserting duplicate 30: {tree.inorder()} (unchanged)")
+
+    # Sorted insertions create a chain because this tree does not self-balance.
+    skewed_tree = BST()
+    for value in (1, 2, 3, 4):
+        skewed_tree.insert(value)
+    print(f"Sorted insertion traversal: {skewed_tree.inorder()}")
+    print(f"Search chain for 4: {skewed_tree.search(4)}")
+    print("Sorted insertions can make search linear instead of logarithmic.")
+
+    # Real-world example: store unique product IDs for an inventory lookup.
+    print("\n=== PRODUCT INVENTORY SCENARIO ===")
+    inventory = BST()
+    product_ids = [1050, 1020, 1080, 1010, 1030, 1070, 1090]
+    for product_id in product_ids:
+        inventory.insert(product_id)
+    print(f"Product IDs entered: {product_ids}")
+    print(f"Product IDs in sorted order: {inventory.inorder()}")
+    print(f"Product 1030 exists: {inventory.search(1030)}")
+    print(f"Product 1060 exists: {inventory.search(1060)}")
 
 
 
